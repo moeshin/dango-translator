@@ -30,7 +30,7 @@ import ui.trans_history
 import translator.update_chrome_driver
 import translator.update_edge_driver
 import translator.upload_firefox_driver
-import translator.upload_trans_file
+# import translator.upload_trans_file
 
 
 class DangoTranslator :
