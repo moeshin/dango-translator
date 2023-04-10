@@ -123,6 +123,7 @@ class Settin(QMainWindow) :
                                      "QPushButton { background: %s;"
                                                    "border-radius: %spx;"
                                                    "color: rgb(255, 255, 255); }"
+                                     "QPushButton:disabled { background-color: gray; }"
                                      "QPushButton:hover { background-color: #83AAF9; }"
                                      "QPushButton:pressed { background-color: #4480F9;"
                                                            "padding-left: 3px;"
@@ -373,10 +374,12 @@ class Settin(QMainWindow) :
         # 本地OCR标签
         label = QLabel(offline_OCR_tab)
         self.customSetGeometry(label, 20, 20, 400, 20)
-        label.setText("免费使用, 识别精度一般, 依赖自身电脑性能")
+        label.setText("测试百度翻译OCR")
         label.setStyleSheet("color: %s"%self.color_2)
         # 本地OCR教程按钮
         button = QPushButton(offline_OCR_tab)
+        button.setEnabled(False)
+
         self.customSetGeometry(button, 550, 20, 100, 20)
         button.setText("详细教程")
         button.clicked.connect(self.openOfflineOCRTutorial)
@@ -394,6 +397,7 @@ class Settin(QMainWindow) :
 
         # 本地OCR运行按钮
         button = QPushButton(offline_OCR_tab)
+        button.setEnabled(False)
         self.customSetGeometry(button, 20, 120, 60, 20)
         button.setText("运行")
         button.clicked.connect(self.runOfflineOCR)
@@ -411,6 +415,7 @@ class Settin(QMainWindow) :
 
         # 本地OCR安装按钮
         button = QPushButton(offline_OCR_tab)
+        button.setEnabled(False)
         self.customSetGeometry(button, 20, 170, 60, 20)
         button.setText("安装")
         button.clicked.connect(lambda: utils.offline_ocr.install_offline_ocr(self.object))
@@ -418,6 +423,7 @@ class Settin(QMainWindow) :
         self.progress_bar = ui.progress_bar.ProgressBar(self.object.yaml["screen_scale_rate"])
         # 本地OCR卸载按钮
         button = QPushButton(offline_OCR_tab)
+        button.setEnabled(False)
         self.customSetGeometry(button, 100, 170, 60, 20)
         button.setText("卸载")
         button.clicked.connect(lambda: utils.offline_ocr.whether_uninstall_offline_ocr(self.object))
