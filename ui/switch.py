@@ -226,14 +226,6 @@ class OfflineSwitch(QWidget):
 
     def mousePressEvent(self, event) :
 
-        # 通过检查端口占用校验本地OCR是否运行成功
-        sign = self.object.is_offline_ocr_running()
-        if not self.checked and not sign :
-            MessageBox("本地OCR使用失败", "请先运行本地OCR, 待运行成功后再打开此开关\n"
-                                          "若运行时间较长或者运行失败, 可通过交流群联系客服协助      \n"
-                                          "使用前期间不可以关闭此运行黑窗")
-            return
-
         if not self.checked and self.object.settin_ui.text_direction_use :
             MessageBox("竖向翻译开启失败", "检测到已开启[竖向翻译], [本地OCR]不支持[竖向翻译]\n"
                                          "请在[功能设定]里将[文字方向]开关改为横向, 再开启[本地OCR]      \n"
