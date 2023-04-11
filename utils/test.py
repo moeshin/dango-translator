@@ -21,43 +21,16 @@ def testOfflineOCR(object):
 
     # 测试信息显示窗
     object.settin_ui.desc_ui = ui.desc.Desc(object)
-    object.settin_ui.desc_ui.setWindowTitle("本地OCR测试")
-    object.settin_ui.desc_ui.desc_text.append("\n开始测试, 共测试5次...")
+    object.settin_ui.desc_ui.setWindowTitle("百度翻译 OCR 测试")
+    object.settin_ui.desc_ui.desc_text.append("\n开始测试...")
+    object.settin_ui.desc_ui.desc_text.insertHtml(
+        '<img src={} width="{}" >'.format(TEST_IMAGE_PATH, 245 * object.settin_ui.rate))
     object.settin_ui.desc_ui.show()
     QApplication.processEvents()
-    total_time = 0
 
-    url = object.yaml["offline_ocr_url"]
-    image_path = TEST_IMAGE_PATH
-    body = {
-        "Language": "JAP",
-    }
-    is_local = object.is_local_offline_ocr()
-    if is_local:
-        body["ImagePath"] = image_path
-
-    for num in range(1, 6):
-        start = time.time()
-        # try :
-        #     translator.ocr.dango.imageBorder(TEST_IMAGE_PATH, NEW_TEST_IMAGE_PATH, "a", 20, color=(255, 255, 255))
-        # except Exception :
-        #     body["ImagePath"] = TEST_IMAGE_PATH
-        if is_local:
-            res = utils.http.post(url, body, object.logger)
-        else:
-            with open(image_path, 'rb') as file:
-                res = utils.http.post(url, body, object.logger, files={
-                    'Image': file
-                })
-        end = time.time()
-        total_time += end-start
-        if res.get("Code", -1) == 0:
-            object.settin_ui.desc_ui.desc_text.append("\n第{}次, 成功, 耗时{:.2f}s".format(num, (end - start)))
-        else:
-            object.settin_ui.desc_ui.desc_text.append("\n第{}次, 失败".format(num))
-        QApplication.processEvents()
-
-    object.settin_ui.desc_ui.desc_text.append("\n测试完成, 平均耗时{:.2f}s".format(total_time/5))
+    ocr_sign, original = translator.ocr.dango.offlineOCR(object, test=True)
+    object.settin_ui.desc_ui.desc_text.append("\n识别结果: \n{}".format(original))
+    object.settin_ui.desc_ui.desc_text.append("\n测试结束!")
 
 
 # 测试私人腾讯

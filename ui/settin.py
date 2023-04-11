@@ -2236,13 +2236,7 @@ class Settin(QMainWindow) :
     # 测试本地OCR
     def testOfflineOCR(self):
 
-        # 检查端口是否被占用
-        if not self.object.is_offline_ocr_running():
-            utils.message.MessageBox("测试失败",
-                                     "本地OCR还没运行成功，不可以进行测试     \n"
-                                     "请先启动本地OCR, 并保证其运行正常")
-        else :
-            utils.test.testOfflineOCR(self.object)
+        utils.test.testOfflineOCR(self.object)
 
 
     # 打开私人腾讯翻译教程

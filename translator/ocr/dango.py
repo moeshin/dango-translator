@@ -8,6 +8,7 @@ from traceback import format_exc
 
 import utils.http
 import utils.range
+import utils.baidu_fanyi_ocr
 
 
 IMAGE_PATH = "./config/image.jpg"
@@ -315,68 +316,30 @@ def dangoOCR(object, test=False) :
 
 
 # 本地OCR
-def offlineOCR(object):
+def offlineOCR(object, test=False):
 
-    image_path = os.path.join(os.getcwd(), "config", "image.jpg")
     # try :
     #     # 四周加白边
     #     imageBorder(image_path, image_path, "a", 10, color=(255, 255, 255))
     # except Exception :
     #     object.logger.error(format_exc())
 
-    url = object.yaml["offline_ocr_url"]
-    language = object.config["language"]
-    body = {
-        "Language": language
-    }
-
-    if object.is_local_offline_ocr():
-        body["ImagePath"] = image_path
-        res = utils.http.post(url, body, object.logger)
+    if test:
+        image_path = TEST_IMAGE_PATH
+        language = "JAP"
     else:
-        with open(image_path, 'rb') as file:
-            res = utils.http.post(url, body, object.logger, files={
-                'Image': file
-            })
-
-    if not res :
-        return False, "本地OCR错误: 本地OCR所使用的端口可能被占用, 请重启电脑以释放端口后重试\n如果频繁出现, 建议切换其他OCR使用"
-
-    code = res.get("Code", -1)
-    message = res.get("Message", "")
-    ocr_result = res.get("Data", [])
-
-    if code == 0 :
-        if object.config["drawImageUse"] :
-            try :
-                # 去掉白边
-                image = Image.open(image_path)
-                coordinate = (10, 10, image.width - 10, image.height - 10)
-                region = image.crop(coordinate)
-                region.save(image_path)
-                # 裁剪后复位坐标参数
-                for index, val in enumerate(ocr_result) :
-                    UpperLeft = val["Coordinate"]["UpperLeft"]
-                    UpperRight = val["Coordinate"]["UpperRight"]
-                    LowerRight = val["Coordinate"]["LowerRight"]
-                    LowerLeft = val["Coordinate"]["LowerLeft"]
-                    ocr_result[index]["Coordinate"]["UpperLeft"] = [UpperLeft[0]-10, UpperLeft[1]-10]
-                    ocr_result[index]["Coordinate"]["UpperRight"] = [UpperRight[0]-10, UpperRight[1]-10]
-                    ocr_result[index]["Coordinate"]["LowerRight"] = [LowerRight[0]-10, LowerRight[1]-10]
-                    ocr_result[index]["Coordinate"]["LowerLeft"] = [LowerLeft[0]-10, LowerLeft[1]-10]
-            except Exception :
-                object.logger.error(message)
-
-        if language == "Vertical_JAP" :
-            content, ocr_result = resultSortMD(ocr_result, language)
-        else :
-            content, ocr_result = resultSortTD(ocr_result, language)
-
-        object.ocr_result = ocr_result
-        return True, content
-    else :
-        object.logger.error(message)
-        if message == "Language RU doesn't exist":
-            return False, "本地OCR错误: 当前本地OCR版本尚未支持俄语\n请于[设置]-[识别设定]-[本地OCR]页面内, 通过卸载和安装功能, 更新最新版本的本地OCR后重试"
-        else :
-            return False, "本地OCR错误: %s\n如果频繁出现, 建议切换其他OCR使用"%message
+        image_path = IMAGE_PATH
+        language = object.config["language"]
+    branch_line_use = object.config.get("BranchLineUse", False)
+    with open(image_path, "rb") as fp:
+        with utils.baidu_fanyi_ocr.instance().request(fp, utils.baidu_fanyi_ocr.get_language(language)) as resp:
+            data = resp.json()
+    if data.get("errno", -1) == 0:
+        src = data.get("data", {}).get("src")
+        if isinstance(src, list) and len(src) > 0:
+            if branch_line_use:
+                s = "\n"
+            else:
+                s = ""
+            return True, s.join(src)
+    return False, "百度翻译 OCR 错误：%s" % data.get("errmsg")

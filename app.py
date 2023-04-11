@@ -121,7 +121,7 @@ class DangoTranslator :
         utils.thread.runQThread(thread)
 
         # 自动启动本地OCR
-        utils.thread.createThread(self.autoOpenOfflineOCR)
+        # utils.thread.createThread(self.autoOpenOfflineOCR)
         # 界面置顶
         self.hwndObj = utils.hwnd.WindowHwnd(self)
         if self.config["setTop"] :
